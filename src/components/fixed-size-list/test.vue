@@ -1,14 +1,15 @@
 <script setup>
-import Index from './index.vue';
+import FixedSizeList from './fixed-size-list.vue';
+
 const data = new Array(10000).fill(0);
 </script>
 
 <template>
-  <Index
+  <FixedSizeList
     :item-size="40"
     item-class="item"
     :width="300"
-    :height="500"
+    :height="300"
     :data="data"
   >
     <template #default="{ item, index }">
@@ -18,7 +19,7 @@ const data = new Array(10000).fill(0);
         {{ index }}
       </div>
     </template>
-  </Index>
+  </FixedSizeList>
 </template>
 
 <style scoped>
