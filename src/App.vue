@@ -1,11 +1,9 @@
 <script setup>
-// import FixedSizeList from './examples/fixed-size-list.vue';
-import DynamicList from './examples/dynamic-list.vue';
+import DynamicListDemo from './examples/dynamic-list-demo.vue';
 </script>
 
 <template>
-  <!-- <FixedSizeList></FixedSizeList> -->
-  <DynamicList></DynamicList>
+  <DynamicListDemo></DynamicListDemo>
 </template>
 
 <style scoped>

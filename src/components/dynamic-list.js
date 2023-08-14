@@ -1,5 +1,8 @@
 export const dynamicListProps = {
-  itemSize: Number, // 每一项的高度
+  itemSize: {
+    type: Number,
+    require: true
+  }, // 每一项的高度
   itemClass: String, // 每一项的自定义 class
   itemKey: [String, Number], // 每一项的 key
   data: Array, // 数据
@@ -12,6 +15,10 @@ export const dynamicListProps = {
   distance: { // 触底加载阈值
     type: Number,
     default: 0
+  },
+  dynamic: {
+    type: Boolean,
+    default: false
   }
 }
 export const dynamicListEmits = {

@@ -26,33 +26,36 @@ const {
   start, // 可见元素起始位置
   end, // 可见元素结束位置 
   cacheEnd, // 下缓冲边界
-  itemsCache, // 已经加载项缓存
+  itemsCache,
+  itemsCache: { positions, maxItemIndex }, // 已经加载项缓存
   renderData // 视图渲染数据
 } = useRenderer(props);
 // 滚动相关
 const { scrollTop, scrollHandler } = useScroller(props, emits);
 // 当滚动时
 watchEffect(() => {
-  // 当前可视区域内可以显示的 item 数量
-  const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
-  // 可见元素起始位置
-  start.value = Math.floor(scrollTop.value / props.itemSize);
-  // 处理上缓冲边界
-  cacheStart.value = Math.max(0, start.value - props.cache);
-  // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
-  end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
-  // 处理下缓冲边界
-  cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
-  // 缓存配置
-  let { items, maxItemIndex } = itemsCache;
-  for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
-    if (maxItemIndex >= index) continue;
-    itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
-    items[index] = {
-      itemData: props.data[index],
-      top: index * props.itemSize,
-      height: props.itemSize,
-      index
+  if (props.dynamic) {
+    // 缓存配置
+  } else {
+    // 当前可视区域内可以显示的 item 数量
+    const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
+    // 可见元素起始位置
+    start.value = Math.floor(scrollTop.value / props.itemSize);
+    // 处理上缓冲边界
+    cacheStart.value = Math.max(0, start.value - props.cache);
+    // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
+    end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
+    // 处理下缓冲边界
+    cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
+    // 缓存配置
+    for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
+      if (maxItemIndex >= index) continue;
+      itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
+      positions[index] = {
+        top: index * props.itemSize,
+        height: props.itemSize,
+        index
+      }
     }
   }
 });

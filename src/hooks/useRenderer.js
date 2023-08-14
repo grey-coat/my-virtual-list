@@ -9,19 +9,30 @@ export const useRenderer = (props) => {
   })
   // 缓存已经加载过的 item
   const itemsCache = {
-    items: {},
+    positions: [],
     maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
+  }
+  const initPositions = () => {
+    const { positions } = itemsCache;
+    for (let index = 0, len = props.data.length; index < len; index++) {
+      positions[i] = {
+        top: index * props.itemSize,
+        height: props.itemSize,
+        index
+      }
+    }
   }
   // 渲染数据
   const renderData = computed(() => {
-    let { items } = itemsCache;
+    let { positions } = itemsCache;
     return props.data
     .slice(renderInfo.cacheStart, renderInfo.cacheEnd + 1)
-    .map((itemData, i) => items[renderInfo.cacheStart + i])
+    .map((itemData, i) => ({...positions[renderInfo.cacheStart + i], itemData}))
   });
   return {
     ...toRefs(renderInfo),
     itemsCache,
-    renderData
+    renderData,
+    initPositions
   }
 }
