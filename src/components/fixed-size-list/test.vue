@@ -1,16 +1,29 @@
 <script setup>
+import { ref } from 'vue';
 import FixedSizeList from './fixed-size-list.vue';
 
-const data = new Array(10000).fill(0);
+const data = ref(new Array(20).fill(0));
+const loading = ref(false);
+const loadData = () => {
+  if (!loading.value) {
+    loading.value = true;
+    setTimeout(() => {
+      let newData = new Array(20).fill(0);
+      data.value.push.apply(data.value, newData);
+      loading.value = false;
+    }, 1000)
+  }
+}
 </script>
 
 <template>
   <FixedSizeList
-    :item-size="40"
+    :item-size="70"
     item-class="item"
     :width="300"
     :height="300"
     :data="data"
+    @load="loadData"
   >
     <template #default="{ item, index }">
       <div

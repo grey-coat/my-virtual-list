@@ -1,33 +1,29 @@
 <script setup>
-import { throttle, RAFThrottle } from '@/utils/common.js'
-import { computed, reactive, ref, toRefs } from 'vue';
+import { throttle, RAFThrottle } from '@/utils/common.js';
+import { fixedSizeListProps, fixedSizeListEmits } from './fixed-size-list.js';
+import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 import ListItem from './list-item.vue';
 
-const props = defineProps({
-  itemSize: Number, 
-  itemClass: String,
-  itemKey: [String, Number],
-  data: Array,
-  width: Number,
-  height: Number,
-  cache: {
-    type: Number,
-    default: 2
-  }
-})
-const containerStyle = reactive({
+const props = defineProps(fixedSizeListProps);
+const emits = defineEmits(fixedSizeListEmits);
+
+// item 总数
+const itemsCount = computed(() => props.data.length);
+// 可视区域样式
+const containerStyle = computed(() => ({
   width: props.width + 'px',
   height: props.height + 'px'
-})
-const listStyle = reactive({
+}))
+// 占位元素样式
+const listStyle = computed(() => ({
   width: '100%',
-  height: props.itemSize * props.data.length + 'px'
-})
+  height: props.itemSize * itemsCount.value + 'px'
+}))
 const renderInfo = reactive({
-  cacheStart: 0, // 上缓存边界
+  cacheStart: 0, // 上缓冲边界
   start: 0, // 可见元素起始位置
   end: 0, // 可见元素结束位置 
-  cacheEnd: 0 // 下缓存边界
+  cacheEnd: 0 // 下缓冲边界
 })
 const {
   cacheStart,
@@ -36,34 +32,38 @@ const {
   cacheEnd
 } = toRefs(renderInfo);
 // 当前可视区域内可以显示的 item 数量
-const viewPortItemCount = Math.ceil(props.height / props.itemSize);
-// item 总数
-const itemCount = props.data.length;
-const setRenderPos = (scrollTop) => {
-  // 可见元素起始位置
-  start.value = Math.floor(scrollTop / props.itemSize);
-  // 处理上缓存边界
-  cacheStart.value = Math.max(0, start.value - props.cache);
-  // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
-  end.value = Math.min(itemCount - 1, start.value + viewPortItemCount - 1);
-  // 处理下缓存边界
-  cacheEnd.value = Math.min(end.value + props.cache, itemCount - 1);
-}
+const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
 // 缓存已经加载过的 item
 const itemsCache = {
   items: {},
   maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
 }
-// 动画帧节流
-const scrollHandler = RAFThrottle((e) => {
-  setRenderPos(e.target.scrollTop);
+const scrollTop = ref(0);
+watchEffect(() => {
+  // 可见元素起始位置
+  start.value = Math.floor(scrollTop.value / props.itemSize);
+  // 处理上缓冲边界
+  cacheStart.value = Math.max(0, start.value - props.cache);
+  // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
+  end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
+  // 处理下缓冲边界
+  cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
+});
+// 滚动事件
+const scrollHandler = RAFThrottle(({ target: { scrollTop: newScrollTop, scrollHeight } }) => { // 动画帧节流
+  if (newScrollTop + props.height + props.distance > scrollHeight) {
+    console.log(1)
+    emits('load');
+  }
+  scrollTop.value = newScrollTop;
 })
+// 渲染数据
 const renderData = computed(() => {
   let { items, maxItemIndex } = itemsCache;
   return props.data.slice(cacheStart.value, cacheEnd.value + 1).map((itemData, i) => {
     let index = cacheStart.value + i;
     if (maxItemIndex >= index) return items[index];
-    maxItemIndex = Math.max(maxItemIndex, index);
+    itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
     return items[index] = {
       itemData,
       top: index * props.itemSize,
@@ -72,9 +72,6 @@ const renderData = computed(() => {
     }
   })
 });
-console.log(renderData)
-// 初始渲染
-setRenderPos(0);
 </script>
 
 <template>
