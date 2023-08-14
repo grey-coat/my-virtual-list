@@ -1,7 +1,7 @@
 <script setup>
-import { throttle, RAFThrottle } from '@/utils/common.js';
 import { fixedSizeListProps, fixedSizeListEmits } from './fixed-size-list.js';
 import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
+import { useScroller } from './useScroller.js';
 import ListItem from './list-item.vue';
 
 const props = defineProps(fixedSizeListProps);
@@ -31,15 +31,16 @@ const {
   end,
   cacheEnd
 } = toRefs(renderInfo);
-// 当前可视区域内可以显示的 item 数量
-const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
 // 缓存已经加载过的 item
 const itemsCache = {
   items: {},
   maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
 }
-const scrollTop = ref(0);
+// 滚动相关
+const { scrollTop, scrollHandler } = useScroller(props, emits);
 watchEffect(() => {
+  // 当前可视区域内可以显示的 item 数量
+  const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
   // 可见元素起始位置
   start.value = Math.floor(scrollTop.value / props.itemSize);
   // 处理上缓冲边界
@@ -49,14 +50,6 @@ watchEffect(() => {
   // 处理下缓冲边界
   cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
 });
-// 滚动事件
-const scrollHandler = RAFThrottle(({ target: { scrollTop: newScrollTop, scrollHeight } }) => { // 动画帧节流
-  if (newScrollTop + props.height + props.distance > scrollHeight) {
-    console.log(1)
-    emits('load');
-  }
-  scrollTop.value = newScrollTop;
-})
 // 渲染数据
 const renderData = computed(() => {
   let { items, maxItemIndex } = itemsCache;
