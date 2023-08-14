@@ -1,4 +1,4 @@
-export const fixedSizeListProps = {
+export const dynamicListProps = {
   itemSize: Number, // 每一项的高度
   itemClass: String, // 每一项的自定义 class
   itemKey: [String, Number], // 每一项的 key
@@ -14,6 +14,6 @@ export const fixedSizeListProps = {
     default: 0
   }
 }
-export const fixedSizeListEmits = {
+export const dynamicListEmits = {
   load: null, // 触底加载事件
 }

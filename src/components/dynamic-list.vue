@@ -1,11 +1,12 @@
 <script setup>
-import { fixedSizeListProps, fixedSizeListEmits } from './fixed-size-list.js';
-import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
-import { useScroller } from './useScroller.js';
+import { dynamicListProps, dynamicListEmits } from './dynamic-list.js';
+import { computed, watchEffect } from 'vue';
+import { useScroller } from '@/hooks/useScroller.js';
+import { useRenderer } from '@/hooks/useRenderer.js';
 import ListItem from './list-item.vue';
 
-const props = defineProps(fixedSizeListProps);
-const emits = defineEmits(fixedSizeListEmits);
+const props = defineProps(dynamicListProps);
+const emits = defineEmits(dynamicListEmits);
 
 // item 总数
 const itemsCount = computed(() => props.data.length);
@@ -19,25 +20,18 @@ const listStyle = computed(() => ({
   width: '100%',
   height: props.itemSize * itemsCount.value + 'px'
 }))
-const renderInfo = reactive({
-  cacheStart: 0, // 上缓冲边界
-  start: 0, // 可见元素起始位置
-  end: 0, // 可见元素结束位置 
-  cacheEnd: 0 // 下缓冲边界
-})
+// 渲染相关
 const {
-  cacheStart,
-  start,
-  end,
-  cacheEnd
-} = toRefs(renderInfo);
-// 缓存已经加载过的 item
-const itemsCache = {
-  items: {},
-  maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
-}
+  cacheStart, // 上缓冲边界
+  start, // 可见元素起始位置
+  end, // 可见元素结束位置 
+  cacheEnd, // 下缓冲边界
+  itemsCache, // 已经加载项缓存
+  renderData // 视图渲染数据
+} = useRenderer(props);
 // 滚动相关
 const { scrollTop, scrollHandler } = useScroller(props, emits);
+// 当滚动时
 watchEffect(() => {
   // 当前可视区域内可以显示的 item 数量
   const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
@@ -49,21 +43,18 @@ watchEffect(() => {
   end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
   // 处理下缓冲边界
   cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
-});
-// 渲染数据
-const renderData = computed(() => {
+  // 缓存配置
   let { items, maxItemIndex } = itemsCache;
-  return props.data.slice(cacheStart.value, cacheEnd.value + 1).map((itemData, i) => {
-    let index = cacheStart.value + i;
-    if (maxItemIndex >= index) return items[index];
+  for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
+    if (maxItemIndex >= index) continue;
     itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
-    return items[index] = {
-      itemData,
+    items[index] = {
+      itemData: props.data[index],
       top: index * props.itemSize,
       height: props.itemSize,
       index
     }
-  })
+  }
 });
 </script>
 

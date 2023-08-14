@@ -1,10 +1,11 @@
 <script setup>
-import Test from './components/fixed-size-list/test.vue';
-
+// import FixedSizeList from './examples/fixed-size-list.vue';
+import DynamicList from './examples/dynamic-list.vue';
 </script>
 
 <template>
-  <Test></Test>
+  <!-- <FixedSizeList></FixedSizeList> -->
+  <DynamicList></DynamicList>
 </template>
 
 <style scoped>

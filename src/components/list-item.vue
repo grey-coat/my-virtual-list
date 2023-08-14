@@ -1,16 +1,16 @@
 <script setup>
-import { toRef, toRefs } from 'vue';
+import { toRefs } from 'vue';
 
 const props = defineProps({
   itemClass: String,
   itemData: {},
   itemIndex: Number
 })
-const {
-  itemClass,
-  itemData,
-  itemIndex
-} = toRefs(props);
+// const {
+//   itemClass,
+//   itemData,
+//   itemIndex
+// } = toRefs(props);
 
 </script>
 
