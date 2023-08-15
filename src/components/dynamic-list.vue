@@ -38,29 +38,42 @@ watchEffect(() => {
   const BSStartIndex = ({ positions }, scrollTop) => {
     const tops = positions.map(p => p.top);
     let left = 0,
-      right = tops.length,
-      mid = left + (right - left) >> 1;
-    while (left != right) {
-      if (tops[mid] < scrollTop) {
-        left = mid;
-      } else {
+      right = tops.length;
 
+    while (left != right) {
+      const mid = left + ((right - left) >> 1);
+      console.log(left, mid, right)
+      if (tops[mid] > scrollTop) {
+        right = mid;
+      } else {
+        left = mid + 1;
       }
     }
-    
+    return Math.max(0, left - 1);
   }
-  start.value = BSStartIndex(itemsCache, scrollTop);
+  // 可见元素起始位置
+  start.value = BSStartIndex(itemsCache, scrollTop.value);
+  // 处理上缓冲边界
+  cacheStart.value = Math.max(0, start.value - props.cache);
+  // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
+  let endIndex = start.value;
+  while (positions[endIndex].top <= scrollTop.value + props.height) {
+    endIndex++;
+  }
+  end.value = Math.min(itemsCount.value - 1, endIndex);
+  // 处理下缓冲边界
+  cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
   // 缓存配置
-  for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
-    const { positions, maxItemIndex } = itemsCache;
-    if (maxItemIndex >= index) continue;
-    itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
-    positions[index] = {
-      top: index * props.itemSize,
-      height: props.itemSize,
-      index
-    }
-  }
+  // for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
+  //   const { positions, maxItemIndex } = itemsCache;
+  //   if (maxItemIndex >= index) continue;
+  //   itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
+  //   positions[index] = {
+  //     top: index * props.itemSize,
+  //     height: props.itemSize,
+  //     index
+  //   }
+  // }
 });
 </script>
 

@@ -10,20 +10,19 @@ export const useRenderer = (props) => {
   // 缓存已经加载过的 item
   const itemsCache = {
     positions: [],
-    maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
+    maxItemIndex: 0 // 当前已经加载过 item 最大的索引
   }
-  let prevLen = 0;
   const initPositions = () => {
-    const { positions } = itemsCache;
+    const { positions, maxItemIndex } = itemsCache;
     const len = props.data.length;
-    for (let index = prevLen; index < len; index++) {
+    for (let index = maxItemIndex; index < len; index++) {
       positions[index] = {
         top: index * props.itemSize,
         height: props.itemSize,
         index
       }
     }
-    prevLen = len;
+    itemsCache.maxItemIndex = len;
   }
   watchEffect(() => {
     initPositions();
