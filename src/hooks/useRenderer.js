@@ -1,4 +1,4 @@
-import { computed, reactive, toRefs } from "vue";
+import { computed, reactive, toRefs, watchEffect } from "vue";
 
 export const useRenderer = (props) => {
   const renderInfo = reactive({
@@ -12,16 +12,22 @@ export const useRenderer = (props) => {
     positions: [],
     maxItemIndex: Number.MIN_SAFE_INTEGER // 当前已经加载过 item 最大的索引
   }
+  let prevLen = 0;
   const initPositions = () => {
     const { positions } = itemsCache;
-    for (let index = 0, len = props.data.length; index < len; index++) {
-      positions[i] = {
+    const len = props.data.length;
+    for (let index = prevLen; index < len; index++) {
+      positions[index] = {
         top: index * props.itemSize,
         height: props.itemSize,
         index
       }
     }
+    prevLen = len;
   }
+  watchEffect(() => {
+    initPositions();
+  })
   // 渲染数据
   const renderData = computed(() => {
     let { positions } = itemsCache;

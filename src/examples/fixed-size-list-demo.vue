@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import DynamicList from '@/components/dynamic-list.vue';
+import FixedSizeList from '../components/fixed-size-list.vue';
 
 const data = ref(new Array(20).fill(0));
 const loading = ref(false);
@@ -17,7 +17,7 @@ const loadData = () => {
 </script>
 
 <template>
-  <DynamicList
+  <FixedSizeList
     :item-size="70"
     item-class="item"
     :width="300"
@@ -29,10 +29,10 @@ const loadData = () => {
       <div
         :class="['list-item', index % 2 ? 'list-item-odd' : 'list-item-even']" 
         style="height: 100%;">
-        {{ index }}
+        {{ item }} - {{ index }}
       </div>
     </template>
-  </DynamicList>
+  </FixedSizeList>
 </template>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup>
 import { dynamicListProps, dynamicListEmits } from './dynamic-list.js';
-import { computed, reactive, ref, watchEffect } from 'vue';
+import { computed, watchEffect } from 'vue';
 import { useScroller } from '@/hooks/useScroller.js';
 import { useRenderer } from '@/hooks/useRenderer.js';
 import ListItem from './list-item.vue';
@@ -15,11 +15,9 @@ const containerStyle = computed(() => ({
   width: props.width + 'px',
   height: props.height + 'px'
 }))
-const listHeight = ref(0);
-// 占位元素样式
 const listStyle = computed(() => ({
   width: '100%',
-  height: listHeight.value + 'px'
+  height: props.itemSize * itemsCount.value + 'px'
 }))
 // 渲染相关
 const {
@@ -27,40 +25,22 @@ const {
   start, // 可见元素起始位置
   end, // 可见元素结束位置 
   cacheEnd, // 下缓冲边界
-  itemsCache,
-  itemsCache: { positions, maxItemIndex }, // 已经加载项缓存
-  renderData, // 视图渲染数据
+  renderData // 视图渲染数据
 } = useRenderer(props);
 // 滚动相关
 const { scrollTop, scrollHandler } = useScroller(props, emits);
 // 当滚动时
 watchEffect(() => {
-  const BSStartIndex = ({ positions }, scrollTop) => {
-    const tops = positions.map(p => p.top);
-    let left = 0,
-      right = tops.length,
-      mid = left + (right - left) >> 1;
-    while (left != right) {
-      if (tops[mid] < scrollTop) {
-        left = mid;
-      } else {
-
-      }
-    }
-    
-  }
-  start.value = BSStartIndex(itemsCache, scrollTop);
-  // 缓存配置
-  for (let index = cacheStart.value; index < cacheEnd.value + 1; index++) {
-    const { positions, maxItemIndex } = itemsCache;
-    if (maxItemIndex >= index) continue;
-    itemsCache.maxItemIndex = Math.max(maxItemIndex, index);
-    positions[index] = {
-      top: index * props.itemSize,
-      height: props.itemSize,
-      index
-    }
-  }
+  // 当前可视区域内可以显示的 item 数量
+  const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
+  // 可见元素起始位置
+  start.value = Math.floor(scrollTop.value / props.itemSize);
+  // 处理上缓冲边界
+  cacheStart.value = Math.max(0, start.value - props.cache);
+  // 可见元素结束位置 = 可视区域内可以显示的 item 数量 + 可见元素起始位置
+  end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
+  // 处理下缓冲边界
+  cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
 });
 </script>
 
