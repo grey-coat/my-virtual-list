@@ -15,10 +15,6 @@ export const dynamicListProps = {
   distance: { // 触底加载阈值
     type: Number,
     default: 0
-  },
-  dynamic: {
-    type: Boolean,
-    default: false
   }
 }
 export const dynamicListEmits = {

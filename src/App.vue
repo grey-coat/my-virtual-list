@@ -5,7 +5,7 @@ import FixedSizeListDemo from './examples/fixed-size-list-demo.vue';
 
 <template>
   <DynamicListDemo></DynamicListDemo>
-  <!-- <FixedSizeListDemo></FixedSizeListDemo> -->
+  <FixedSizeListDemo></FixedSizeListDemo>
 </template>
 
 <style scoped>

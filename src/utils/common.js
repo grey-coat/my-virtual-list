@@ -25,3 +25,17 @@ export function RAFThrottle(func) {
     }
   }
 }
+export const BSStartIndex = (arr, num) => {
+  let left = 0,
+    right = arr.length - 1;
+
+  while (left != right) {
+    const mid = left + ((right - left) >> 1);
+    if (arr[mid] > num) {
+      right = mid;
+    } else {
+      left = mid + 1;
+    }
+  }
+  return Math.max(0, left - 1);
+}

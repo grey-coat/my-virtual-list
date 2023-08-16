@@ -1,4 +1,4 @@
-import { computed, reactive, ref, toRefs, watchEffect } from "vue";
+import { computed, reactive, ref, toRefs, watchEffect, watchSyncEffect } from "vue";
 
 export const useRenderer = (props) => {
   const renderInfo = reactive({
@@ -15,16 +15,27 @@ export const useRenderer = (props) => {
     const len = props.data.length;
     for (let index = maxItemIndex.value; index < len; index++) {
       positions[index] = {
-        top: index * props.itemSize,
+        top: index == 0 ? 0 : positions[index - 1].top + positions[index - 1].height,
         height: props.itemSize,
         index
       }
     }
     maxItemIndex.value = len;
   }
-  watchEffect(() => {
-    initPositions();
-  })
+  watchSyncEffect(initPositions);
+  // 可视区域样式
+  const containerStyle = computed(() => ({
+    width: props.width + "px",
+    height: props.height + "px",
+  }));
+  // 占位元素样式
+  const listStyle = computed(() => {
+    const endPos = positions[positions.length - 1];
+    return {
+      width: "100%",
+      height: endPos.top + endPos.height + "px",
+    };
+  });
   // 渲染数据
   const renderData = computed(() => {
     return props.data
@@ -34,6 +45,8 @@ export const useRenderer = (props) => {
   return {
     ...toRefs(renderInfo),
     positions,
+    containerStyle,
+    listStyle,
     renderData,
     initPositions
   }

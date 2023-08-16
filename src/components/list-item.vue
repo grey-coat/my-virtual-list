@@ -1,5 +1,5 @@
 <script setup>
-import { inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, toRefs } from 'vue';
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const props = defineProps({
   itemClass: String,
@@ -12,7 +12,7 @@ const props = defineProps({
 //   itemIndex
 // } = toRefs(props);
 
-const resizeOb = inject('resizeOb');
+const resizeOb = inject('resizeOb', 0);
 const itemRef = ref();
 if (resizeOb) {
   onMounted(() => {

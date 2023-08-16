@@ -10,27 +10,19 @@ const emits = defineEmits(dynamicListEmits);
 
 // item 总数
 const itemsCount = computed(() => props.data.length);
-// 可视区域样式
-const containerStyle = computed(() => ({
-  width: props.width + 'px',
-  height: props.height + 'px'
-}))
-const listStyle = computed(() => ({
-  width: '100%',
-  height: props.itemSize * itemsCount.value + 'px'
-}))
 // 渲染相关
 const {
   cacheStart, // 上缓冲边界
   start, // 可见元素起始位置
   end, // 可见元素结束位置 
   cacheEnd, // 下缓冲边界
+  containerStyle, // 占位元素样式
+  listStyle, // 可视区域样式
   renderData // 视图渲染数据
 } = useRenderer(props);
 // 滚动相关
 const { scrollTop, scrollHandler } = useScroller(props, emits);
-// 当滚动时
-watchEffect(() => {
+const updateRenderRange = () => {
   // 当前可视区域内可以显示的 item 数量
   const viewPortItemCount = computed(() => Math.ceil(props.height / props.itemSize));
   // 可见元素起始位置
@@ -41,7 +33,9 @@ watchEffect(() => {
   end.value = Math.min(itemsCount.value - 1, start.value + viewPortItemCount.value - 1);
   // 处理下缓冲边界
   cacheEnd.value = Math.min(end.value + props.cache, itemsCount.value - 1);
-});
+}
+// 当滚动时
+watchEffect(updateRenderRange);
 </script>
 
 <template>
