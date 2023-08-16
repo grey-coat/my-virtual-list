@@ -1,5 +1,5 @@
 <script setup>
-import { toRefs } from 'vue';
+import { inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, toRefs } from 'vue';
 
 const props = defineProps({
   itemClass: String,
@@ -12,11 +12,24 @@ const props = defineProps({
 //   itemIndex
 // } = toRefs(props);
 
+const resizeOb = inject('resizeOb');
+const itemRef = ref();
+if (resizeOb) {
+  onMounted(() => {
+    resizeOb.observe(itemRef.value);
+  })
+  onBeforeUnmount(() => {
+    resizeOb.unobserve(itemRef.value);
+  })
+}
+
 </script>
 
 <template>
   <div 
     :class="['virtual-list-item', itemClass]" 
+    ref="itemRef"
+    :data-index="itemIndex"
   >
     <slot :item="itemData" :index="itemIndex"></slot>
   </div>

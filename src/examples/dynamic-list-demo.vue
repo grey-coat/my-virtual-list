@@ -28,7 +28,9 @@ const loadData = () => {
     <template #default="{ item, index }">
       <div
         :class="['list-item', index % 2 ? 'list-item-odd' : 'list-item-even']" 
-        style="height: 100%;">
+        :style="{
+          height: 70 + Math.ceil((Math.random() - 0.5) * 30) + 'px'
+        }">
         {{ index }}
       </div>
     </template>
