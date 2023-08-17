@@ -1,27 +1,15 @@
 <script setup>
-import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import { ref } from 'vue';
+import { useResizeObserve } from '../hooks/common/useResizeObserver';
 
 const props = defineProps({
   itemClass: String,
   itemData: {},
   itemIndex: Number
 })
-// const {
-//   itemClass,
-//   itemData,
-//   itemIndex
-// } = toRefs(props);
 
-const resizeOb = inject('resizeOb', 0);
 const itemRef = ref();
-if (resizeOb) {
-  onMounted(() => {
-    resizeOb.observe(itemRef.value);
-  })
-  onBeforeUnmount(() => {
-    resizeOb.unobserve(itemRef.value);
-  })
-}
+useResizeObserve('resizeOb', itemRef);
 
 </script>
 

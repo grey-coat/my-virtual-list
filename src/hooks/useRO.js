@@ -19,5 +19,6 @@ export const useRO = (positions) => {
       }
     }
   }
-  useResizeObserver(updatePositions);
+  // 监听 item 改变
+  useResizeObserver('resizeOb', updatePositions);
 }
