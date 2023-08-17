@@ -1,11 +1,11 @@
 <script setup>
 import { dynamicListProps, dynamicListEmits } from "./dynamic-list.js";
-import { computed, watchEffect } from "vue";
+import { watchEffect } from "vue";
 import { useScroller } from "@/hooks/useScroller.js";
 import { useRenderer } from "@/hooks/useRenderer.js";
-import { useResizeObserver } from '../hooks/useResizeObserver.js';
 import ListItem from "./list-item.vue";
 import { BSStartIndex } from "../utils/common";
+import { useRO } from "../hooks/useRO";
 
 const props = defineProps(dynamicListProps);
 const emits = defineEmits(dynamicListEmits);
@@ -53,7 +53,7 @@ const updateRenderRange = () => {
 // 当滚动时
 watchEffect(updateRenderRange);
 // 监听元素变化
-useResizeObserver(positions);
+useRO(positions);
 </script>
 
 <template>

@@ -1,6 +1,6 @@
-import { provide } from "vue";
+import { useResizeObserver } from "./common/useResizeObserver";
 
-export const useResizeObserver = (positions) => {
+export const useRO = (positions) => {
   const updateItemsHeight = (index, newHeight) => {
     // console.log('upitem', index, newHeight);
     const pos = positions[index];
@@ -10,7 +10,7 @@ export const useResizeObserver = (positions) => {
       positions[i].top += diff; // 更新当前 item 后所有item 的高度
     }
   };
-  const resizeOb = new ResizeObserver((entries) => {
+  const updatePositions = (entries) => {
     for (const { borderBoxSize, target } of entries) {
       const boxSize = borderBoxSize[0]; // 变化的 item 的 size
       const index = Number(target.dataset.index);
@@ -18,6 +18,6 @@ export const useResizeObserver = (positions) => {
         updateItemsHeight(index, boxSize.blockSize); // 更新当前 item 的 pos
       }
     }
-  });
-  provide("resizeOb", resizeOb);
+  }
+  useResizeObserver(updatePositions);
 }

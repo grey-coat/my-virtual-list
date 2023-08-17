@@ -9,7 +9,7 @@ const mockData = (num = 20) => {
   }
   return data;
 };
-const data = ref(mockData(100));
+const data = ref(mockData(10));
 const loading = ref(false);
 const loadData = () => {
   if (!loading.value) {
@@ -21,6 +21,9 @@ const loadData = () => {
     }, 1000);
   }
 };
+const clickHander = (index) => {
+  data.value[index] = 100 + Math.ceil((Math.random() - 0.5) * 50);
+}
 </script>
 
 <template>
@@ -39,6 +42,7 @@ const loadData = () => {
           height: item + 'px',
           boxSizing: 'border-box',
         }"
+        @click="clickHander(index)"
       >
         {{ index }}
       </div>
